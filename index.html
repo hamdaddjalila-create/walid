@@ -592,12 +592,7 @@ document.getElementById("today").textContent=new Date().toLocaleDateString("ar-D
   year:"numeric",month:"long",day:"numeric"
 });
 
-authClient.auth.onAuthStateChange((_event,session)=>{
-  if(session){
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("application").classList.remove("hidden");
-  }
-});
+
 
 checkSession();
 </script>
