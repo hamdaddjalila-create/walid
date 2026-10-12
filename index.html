@@ -293,9 +293,7 @@ async function loadCloudData(userId){
   renderAll();
 }
 
-  localStorage.setItem(STORE_KEY, JSON.stringify(db));
-  renderAll();
-}
+
 
 function esc(value){
   return String(value ?? "").replace(/[&<>"']/g, c => ({
