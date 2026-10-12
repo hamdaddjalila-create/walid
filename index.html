@@ -207,7 +207,8 @@ const titles = {
   backup:"النسخ الاحتياطي"
 };
 
-function loadData(){
+
+function loadLocalData(){
   try{
     const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
     for(const k of Object.keys(db)){
@@ -219,6 +220,79 @@ function loadData(){
 }
 
 function saveData(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(db));
+  renderAll();
+
+  if(!cloudReady || !currentUserId) return;
+
+  const snapshot = JSON.parse(JSON.stringify(db));
+  const userId = currentUserId;
+
+  saveQueue = saveQueue.then(async()=>{
+    if(userId !== currentUserId || !cloudReady) return;
+
+    const {error} = await authClient
+      .from("clinic_data")
+      .upsert({
+        user_id: userId,
+        data: snapshot,
+        updated_at: new Date().toISOString()
+      }, {onConflict:"user_id"});
+
+    if(error){
+      console.error("Cloud save error:", error);
+      alert("تعذر الحفظ السحابي. البيانات محفوظة محليًا فقط حاليًا.");
+    }
+  }).catch(error=>{
+    console.error("Save queue error:", error);
+  });
+}
+
+async function loadCloudData(userId){
+  cloudReady = false;
+  currentUserId = userId;
+
+  const localData = localStorage.getItem(STORE_KEY);
+
+  const {data, error} = await authClient
+    .from("clinic_data")
+    .select("data")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if(error){
+    throw new Error("تعذر تحميل البيانات السحابية: " + error.message);
+  }
+
+  if(data && data.data){
+    for(const k of Object.keys(db)){
+      db[k] = Array.isArray(data.data[k]) ? data.data[k] : [];
+    }
+  }else{
+    if(localData){
+      loadLocalData();
+    }else{
+      db = {patients:[], appointments:[], visits:[], employees:[]};
+    }
+
+    const {error: saveError} = await authClient
+      .from("clinic_data")
+      .upsert({
+        user_id: userId,
+        data: db,
+        updated_at: new Date().toISOString()
+      }, {onConflict:"user_id"});
+
+    if(saveError){
+      throw new Error("تعذر نقل البيانات إلى السحابة: " + saveError.message);
+    }
+  }
+
+  localStorage.setItem(STORE_KEY, JSON.stringify(db));
+  cloudReady = true;
+  renderAll();
+}
+
   localStorage.setItem(STORE_KEY, JSON.stringify(db));
   renderAll();
 }
@@ -466,25 +540,50 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
 }
 });
 
+
 async function checkSession(){
-  const {data,error}=await authClient.auth.getSession();
+  const loginScreen = document.getElementById("loginScreen");
+  const application = document.getElementById("application");
+  const msg = document.getElementById("loginMsg");
+
+  cloudReady = false;
+
+  const {data, error} = await authClient.auth.getSession();
+
   if(error || !data.session){
-    document.getElementById("loginScreen").classList.remove("hidden");
-    document.getElementById("application").classList.add("hidden");
+    currentUserId = null;
+    loginScreen.classList.remove("hidden");
+    application.classList.add("hidden");
     return;
   }
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("application").classList.remove("hidden");
-  loadData();
-  renderAll();
+
+  loginScreen.classList.add("hidden");
+  application.classList.remove("hidden");
+  msg.textContent = "جارٍ تحميل البيانات السحابية...";
+
+  try{
+    await loadCloudData(data.session.user.id);
+    msg.textContent = "";
+  }catch(err){
+    cloudReady = false;
+    msg.textContent = err.message || "تعذر تحميل البيانات.";
+    application.classList.add("hidden");
+    loginScreen.classList.remove("hidden");
+  }
 }
 
-document.getElementById("logout").addEventListener("click",async()=>{
+
+
+document.getElementById("logout").addEventListener("click", async () => {
+  cloudReady = false;
+  currentUserId = null;
+
   await authClient.auth.signOut();
+
   document.getElementById("application").classList.add("hidden");
   document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("password").value="";
-  document.getElementById("loginMsg").textContent="";
+  document.getElementById("password").value = "";
+  document.getElementById("loginMsg").textContent = "";
 });
 
 document.getElementById("today").textContent=new Date().toLocaleDateString("ar-DZ",{
