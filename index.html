@@ -460,11 +460,11 @@ document.getElementById("loginForm").addEventListener("submit",async e=>{
     });
     if(error) throw error;
     await checkSession();
-  }catch(err){
-    msg.textContent="تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور وإعدادات Supabase.";
-  }finally{
-    button.disabled=false;
-  }
+} catch (err) {
+    msg.textContent = "خطأ تسجيل الدخول: " + (err.message || String(err));
+} finally {
+    button.disabled = false;
+}
 });
 
 async function checkSession(){
