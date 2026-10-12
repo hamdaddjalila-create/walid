@@ -198,6 +198,10 @@ const authClient = window.supabase.createClient(
 const STORE_KEY = "hamdad_clinic_data_v1";
 let db = {patients:[],appointments:[],visits:[],employees:[]};
 
+let currentUserId = null;
+let cloudReady = false;
+let saveQueue = Promise.resolve();
+
 const titles = {
   dashboard:"لوحة التحكم",
   patients:"إدارة المرضى",
