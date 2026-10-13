@@ -69,8 +69,10 @@ th{background:#f8fafc}
       <button data-page="patients">👥 المرضى</button>
       <button data-page="appointments">📅 المواعيد</button>
       <button data-page="visits">🩺 الزيارات</button>
+      <button data-page="prescriptions">💊 الأدوية والوصفات</button>
       <button data-page="prescriptions">💊 الوصفات</button>
       <button data-page="employees">👨‍⚕️ الموظفون</button>
+      <button data-page="prescriptions">💊 الأدوية والوصفات</button>
       <section id="page-prescriptions" class="page">
 
 <div class="card">
@@ -226,7 +228,103 @@ th{background:#f8fafc}
         </div>
         <div class="card"><div id="employeesTable" class="tablewrap"></div></div>
       </section>
+<section id="page-prescriptions" class="page">
 
+<div class="card">
+<h3>💊 الأدوية والوصفات الطبية</h3>
+
+<form id="prescriptionForm">
+
+<input type="hidden" id="prescriptionEdit">
+
+<div class="formgrid">
+
+<div>
+<label>المريض *</label>
+<select id="prescriptionPatient" required></select>
+</div>
+
+<div>
+<label>تاريخ الوصفة</label>
+<input id="prescriptionDate" type="date">
+</div>
+
+<div class="full">
+<label>الأدوية والوصفة</label>
+<textarea id="prescriptionText" placeholder="مثال: دواء X - 3 مرات يومياً"></textarea>
+</div>
+
+<div class="full">
+<label>ملاحظات الطبيب</label>
+<textarea id="prescriptionNotes"></textarea>
+</div>
+
+</div>
+
+<div class="actions">
+<button type="submit">حفظ الوصفة</button>
+</div>
+
+</form>
+
+</div>
+
+<div class="card">
+<div id="prescriptionsTable" class="tablewrap"></div>
+</div>
+
+</section>
+      <section id="page-prescriptions" class="page">
+
+<div class="card">
+
+<h3>💊 الأدوية والوصفات</h3>
+
+<form id="prescriptionForm">
+
+<input type="hidden" id="prescriptionEdit">
+
+<div class="formgrid">
+
+<div>
+<label>المريض *</label>
+<select id="prescriptionPatient" required></select>
+</div>
+
+<div>
+<label>تاريخ الوصفة</label>
+<input id="prescriptionDate" type="date">
+</div>
+
+<div class="full">
+<label>الأدوية</label>
+<textarea id="prescriptionMedicines"
+placeholder="مثال:
+Paracetamol 500mg
+Amoxicilline 1g"></textarea>
+</div>
+
+<div class="full">
+<label>ملاحظات الطبيب</label>
+<textarea id="prescriptionNotes"></textarea>
+</div>
+
+</div>
+
+<div class="actions">
+<button type="submit">حفظ الوصفة</button>
+</div>
+
+</form>
+
+</div>
+
+
+<div class="card">
+<div id="prescriptionsTable" class="tablewrap"></div>
+</div>
+
+</section>
       <section id="page-backup" class="page">
         <div class="card">
           <h3>النسخ الاحتياطي</h3>
@@ -272,6 +370,7 @@ const titles = {
   patients:"إدارة المرضى",
   appointments:"إدارة المواعيد",
   visits:"الزيارات الطبية",
+  prescriptions:"الأدوية والوصفات",
   employees:"الموظفون",
   prescriptions:"الوصفات الطبية",
   backup:"النسخ الاحتياطي"
