@@ -69,7 +69,67 @@ th{background:#f8fafc}
       <button data-page="patients">👥 المرضى</button>
       <button data-page="appointments">📅 المواعيد</button>
       <button data-page="visits">🩺 الزيارات</button>
+      <button data-page="prescriptions">💊 الوصفات</button>
       <button data-page="employees">👨‍⚕️ الموظفون</button>
+      <section id="page-prescriptions" class="page">
+
+<div class="card">
+<h3>💊 الوصفات الطبية</h3>
+
+<form id="prescriptionForm">
+
+<input type="hidden" id="prescriptionEdit">
+
+<div class="formgrid">
+
+<div>
+<label>المريض *</label>
+<select id="prescriptionPatient" required></select>
+</div>
+
+<div>
+<label>تاريخ الوصفة</label>
+<input id="prescriptionDate" type="date">
+</div>
+
+<div class="full">
+<label>اسم الدواء *</label>
+<input id="medicineName" required>
+</div>
+
+<div>
+<label>الجرعة</label>
+<input id="medicineDose" placeholder="مثال: قرص مرتين يومياً">
+</div>
+
+<div>
+<label>مدة العلاج</label>
+<input id="medicineDuration" placeholder="مثال: 7 أيام">
+</div>
+
+<div class="full">
+<label>ملاحظات الطبيب</label>
+<textarea id="prescriptionNotes"></textarea>
+</div>
+
+</div>
+
+<div class="actions">
+<button type="submit">حفظ الوصفة</button>
+<button type="button" class="secondary" onclick="resetForm('prescriptionForm')">
+إلغاء
+</button>
+</div>
+
+</form>
+</div>
+
+
+<div class="card">
+<div id="prescriptionsTable" class="tablewrap"></div>
+</div>
+
+</section>
       <button data-page="backup">💾 النسخ الاحتياطي</button>
     </nav>
   </aside>
@@ -196,8 +256,13 @@ const authClient = window.supabase.createClient(
 );
 /* البيانات محلية في المتصفح، وليست قاعدة بيانات سحابية */
 const STORE_KEY = "hamdad_clinic_data_v1";
-let db = {patients:[],appointments:[],visits:[],employees:[]};
-
+let db = {
+patients:[],
+appointments:[],
+visits:[],
+employees:[],
+prescriptions:[]
+};
 let currentUserId = null;
 let cloudReady = false;
 let saveQueue = Promise.resolve();
@@ -208,6 +273,7 @@ const titles = {
   appointments:"إدارة المواعيد",
   visits:"الزيارات الطبية",
   employees:"الموظفون",
+  prescriptions:"الوصفات الطبية",
   backup:"النسخ الاحتياطي"
 };
 
